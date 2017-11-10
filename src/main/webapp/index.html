@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <style>
+        .buttun {
+            font-size: 25px;
+            color: #f0f0f0;
+            position: relative;
+            left: 60px;
+            top: 35px;
+            text-align: center;
+            border: 2px solid #a1a1a1;
+            padding: 10px 40px;
+            background: #BA55D3;
+            width: 250px;
+            height: 75px;
+            border-radius: 25px;
+            -moz-border-radius: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+<div style="border: 1px solid gainsboro;height: 730px;width: 400px;position: relative ">
+    <div id="result" style="position: absolute;left:404px;width: 600px"></div>
+    <form>
+        <table style="border-collapse:separate; border-spacing:0px 10px;">
+            <tr>
+                <td>
+                    <label>许愿留名：</label><input type="text" style="width: 270px;height: 20px">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>许愿内容：</label><textarea style="height: 230px;width: 270px"
+                                                  onkeyup="checkLen(this)"></textarea>
+                    <div style="color:mediumvioletred;font-size: 10px;position: relative;left: 240px;top: -20px">还可输入
+                        <span id="count">200</span> 个字
+                    </div>
+                </td>
+            </tr>
+            <tr style="">
+                <td>
+                    <label>许愿图标：</label>
+                    <input type="radio" name="friut" checked="checked"/><img src="img/bpic_11.gif">
+                    <input type="radio" name="friut"/><img src="img/bpic_25.gif">
+                    <input type="radio" name="friut"/><img src="img/bpic_13.gif">
+                </td>
+            </tr>
+
+            <tr>
+                <td style="position: relative;top: 40px">
+                    <label>许愿颜色：</label>
+                    <select>
+                        <option value="3">橙色</option>
+                        <option value="4">粉色</option>
+                        <option value="5">蓝色</option>
+                        <option value="6">黄色</option>
+                        <option value="7">紫色</option>
+                    </select><!--根据img文件夹图片命名value-->
+                </td>
+            </tr>
+
+            <tr>
+                <td style="position: relative;top: 100px">
+                    <label>个性背景：</label>
+                    <input type="file" id="file_input"/>
+                </td>
+            </tr>
+            <tr>
+                <td style="position: relative;top: 120px">
+                    <button type="button" onclick="hope1();" class="buttun">许&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp愿
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script src="jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+
+    function checkLen(obj)/*文本域字数Limit*/ {
+        var maxChars = 200;//最多字符数
+        if (obj.value.length > maxChars)
+            obj.value = obj.value.substring(0, maxChars);
+        var curr = maxChars - obj.value.length;
+        document.getElementById("count").innerHTML = curr.toString();
+    }
+
+    var count = 1;
+
+    function show(o) {
+        $(o).css("z-index", "1000");
+        $(o).siblings("div").css("z-index", "0");
+    }
+
+    function AddZero(obj) {
+        if (obj < 10) {
+            return "0" + obj;
+        }
+        else {
+            return obj;
+        }
+    }
+
+    /*日期数字小于10的前面加0*/
+
+    var result = document.getElementById("result");
+    var input = document.getElementById("file_input");
+    if (typeof FileReader === 'undefined') {
+        result.innerHTML = "不支持该方法";
+        input.setAttribute('disabled', 'disabled');
+    } else {
+        input.addEventListener('change', ReadFile, false);
+    }/*利用自带的浏览方法浏览本地文件夹*/
+
+    function ReadFile() {
+        var file = this.files[0];
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            result.innerHTML = '<img src="' + this.result + '" style="width: 1150px;height: 730px;position: relative;top: "/>'
+        }
+    }
+
+    /*获取点击的本地文件的绝对路径并在html页面显示*/
+
+    function now() {
+        var date = new Date();
+        var str = "" + date.getFullYear() + "-";
+        str += (date.getMonth() + 1) + "-";
+        str += date.getDate() + " ";
+        str += date.getHours() + ":";
+        str += AddZero(date.getMinutes());
+        return str;
+    }
+
+    /*获取当前时间*/
+
+    function hope1() {
+
+        var content = $("textarea").val();
+        if (content == "") {
+            alert("你的愿望呢")
+        } else {
+            var count = 0;
+            hope();
+        }
+    }
+
+    /*判断文本域是否为空*/
+
+    function hope() {
+        count++;
+        var line = "第[" + count + "]条 " + now();
+        /*便利贴数量*/
+        var note = $("textarea").val();
+        /*文本域信息*/
+        var name = $("input[type='text']").val();
+        /*许愿人名字*/
+        var img = $("input[type='radio']:checked").next().attr("src");
+        /*单选框取值*/
+        var color = $('select option:selected').val();
+        /*便利贴颜色选取*/
+
+        $("body").append(CreateDiv(line, note, name, img, color));
+        /*构造函数动态创建DIV*/
+        var divHeight = $("body").children("div:last-child").find(".content").css("height");
+        /*改变div高度*/
+        $("body").children("div:last-child").find(".content").parent().css("height", divHeight.toString());
+        /*找到最后一个div的father的高度并赋值*/
+    }
+
+    function CreateDiv(line, note, name, img, color) {
+        var x = Math.ceil(Math.random() * 800) - 1;
+        /*动态div的高*/
+        var y = Math.ceil(Math.random() * 1400) - 1;
+        /*动态div的左边距*/
+        while (y < 400) {
+            x = Math.ceil(Math.random() * 800) - 1;
+            y = Math.ceil(Math.random() * 1400) - 1;
+        }
+        /*在操作框外生成便利贴*/
+
+        var html = '<div style="position:absolute;top:' + x + 'px;left:' + y + 'px;" onclick="show(this);">';
+        /*生成随机位置*/
+        html += '<div style="height: 66px;position: relative;">';
+        /*头部分*/
+        html += '	<img src="img/a' + color + '_1.gif">';
+        /*便利贴颜色*/
+        html += '	<div style="position: absolute;top: 43px;left: 53px;font-size: 12px;">';
+        html += line;
+        /*条数*/
+        html += '	</div>';
+        html += '</div>';
+        html += '<div style="position: relative;background-repeat: repeat-y;background-image: url(img/a' + color + '_2.gif);">';
+        /*尾部分*/
+        html += '	<div class="content" style="word-wrap: break-word;width: 170px;position: absolute;top: 0px;left: 40px;font-size: 12px;">';
+        html += note;
+        /*文本域信息获取*/
+        html += '	</div>';
+        html += '</div>';
+        html += '<div style="position: relative;">';
+        html += '	<img src="img/a' + color + '_3.gif">';
+        html += '	<div style="position: absolute;top: 17px;left: 24px;">';
+        html += '		<img src="' + img + '">';
+        /*单选框选择*/
+        html += '	</div>';
+        html += '	<div style="position: absolute;top: 24px;left: 167px;font-size: 12px;">';
+        html += name;
+        /*许愿人姓名*/
+        html += '	</div>';
+        html += '</div>';
+        html += '</div>';
+        return html;
+    }
+</script>
+</body>
+</html>
